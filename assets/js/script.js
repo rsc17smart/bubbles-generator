@@ -18,7 +18,8 @@ OTO.BubbleGenerator = class {
             bubblesAudio.autoplay = true;
             bubblesAudio.loop = true;
             bubblesAudio.muted = false;
-            bubblesAudio.src = 'assets/audio/Water Bubble Sound FX Royalty Free Music.mp3';
+            bubblesAudio.play = true;
+            bubblesAudio.innerHTML = '<source src="assets/audio/Water Bubble Sound FX Royalty Free Music.mp3" type="audio/mpeg">';
             this.container.appendChild(bubblesAudio);
 
             const audioPopMessage = document.createElement('div');
@@ -34,9 +35,36 @@ OTO.BubbleGenerator = class {
                 audioPopMessage.classList.remove('visible');
             }, 5000);
 
+            const audioStatus = document.createElement('div');
+            audioStatus.classList.add('oto-bubbles-audioStatus');
+            document.body.appendChild(audioStatus);
+
+            let hideStatusMessage = null;
+
+            function startHidingStatus() {
+                hideStatusMessage = setTimeout(() => {
+                    audioStatus.classList.remove('visible');
+                }, 2000);
+            }
+
+            function resetHidingStatus() {
+                clearTimeout(hideStatusMessage);
+            }
+
             document.addEventListener('keypress', function (e) {
                 if (e.keyCode === 109) {
                     bubblesAudio.muted = !bubblesAudio.muted;
+
+                    if (bubblesAudio.muted === true) {
+                        audioStatus.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                    } else {
+                        audioStatus.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    }
+
+                    audioStatus.classList.add('visible');
+
+                    resetHidingStatus();
+                    startHidingStatus();
                 }
             });
         }

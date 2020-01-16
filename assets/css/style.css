@@ -460,7 +460,7 @@ template {
     box-shadow: 0 5px 15px 0 rgba(0, 0, 0, 0.35);
     color: #fff;
     padding: 15px 20px;
-    border-radius: 20px;
+    border-radius: 30px;
     width: 80%;
     max-width: 340px;
     -webkit-backdrop-filter: saturate(180%) blur(20px);
@@ -479,4 +479,33 @@ template {
     opacity: 1;
     visibility: visible;
     transform: translateX(-50%) scale(1);
+}
+
+.oto-bubbles-audioStatus {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    background-color: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 5px 15px 0 rgba(0, 0, 0, 0.35);
+    color: #fff;
+    padding: 12px 15px;
+    border-radius: 15px;
+    white-space: nowrap;
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    transition: 0.5s ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.5);
+}
+.oto-bubbles-audioStatus i {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 36px;
+}
+
+.oto-bubbles-audioStatus.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
 }
