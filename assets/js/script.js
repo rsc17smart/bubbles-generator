@@ -17,8 +17,8 @@ OTO.BubbleGenerator = class {
             bubblesAudio.classList.add('oto-bubbles-audio');
             bubblesAudio.autoplay = true;
             bubblesAudio.loop = true;
-            bubblesAudio.muted = false;
-            bubblesAudio.play = true;
+            bubblesAudio.controls = true;
+            bubblesAudio.muted = true;
             bubblesAudio.innerHTML = '<source src="assets/audio/Water Bubble Sound FX Royalty Free Music.mp3" type="audio/mpeg">';
             this.container.appendChild(bubblesAudio);
 
