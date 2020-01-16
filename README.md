@@ -1,2 +1,2 @@
-# bubbles-generator
+# Bubbles Generator
 Simple javascript bubbles animation.
