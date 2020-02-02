@@ -11,6 +11,11 @@ OTO.BubbleGenerator = class {
     constructHtml() {
         this.container.classList.add('oto-bubbles-generator');
 
+        // Add parallax background
+        const bubblesBackground = document.createElement('div');
+        bubblesBackground.classList.add('oto-bubbles-background');
+        this.container.appendChild(bubblesBackground);
+
         // Add audio player
         if (this.options.audio === true) {
             const bubblesAudio = document.createElement('audio');
@@ -59,6 +64,7 @@ OTO.BubbleGenerator = class {
                         audioStatus.innerHTML = '<i class="fas fa-volume-mute"></i>';
                     } else {
                         audioStatus.innerHTML = '<i class="fas fa-volume-up"></i>';
+                        bubblesAudio.play();
                     }
 
                     audioStatus.classList.add('visible');
@@ -99,13 +105,18 @@ OTO.BubbleGenerator = class {
     }
 
     getMousePos() {
+        const bubblesBackground = this.container.querySelector('.oto-bubbles-background');
         const bubbleGlass = this.container.querySelector('.oto-bubbles-glass');
         let x = this.container.offsetWidth / 2 - bubbleGlass.offsetWidth / 2;
         let y = this.container.offsetHeight - bubbleGlass.offsetHeight;
         let XPos = x;
         let YPos = y;
 
+        let XBgPos = 50 + XPos / 1000;
+        let YBgPos = 50 + YPos / 1000;
+
         bubbleGlass.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        bubblesBackground.style.transform = `translate(${-XBgPos}%, ${-YBgPos}%)`;
 
         this.container.addEventListener('mousemove', e => {
             x = e.clientX;
@@ -126,7 +137,11 @@ OTO.BubbleGenerator = class {
                 YPos = 200;
             }
 
+            XBgPos = 50 + XPos / 1000;
+            YBgPos = 50 + YPos / 1000;
+
             bubbleGlass.style.transform = `translate3d(${XPos}px, ${YPos}px, 0)`;
+            bubblesBackground.style.transform = `translate(${-XBgPos}%, ${-YBgPos}%)`;
         });
     }
 
@@ -135,57 +150,50 @@ OTO.BubbleGenerator = class {
         const bubbles = this.container.querySelector('.oto-bubbles-wrapper').querySelectorAll('.bubble');
 
         for(let i = 0; i < bubbles.length; i++) {
-            let x = this.container.offsetWidth / 2 - bubbles[i].offsetWidth / 2;
-            let y = this.container.offsetHeight - bubbleGlass.offsetHeight;
+            let bubbleEl = bubbles[i];
+            let x = this.container.offsetWidth / 2 - bubbleEl.offsetWidth / 2;
+            let y = this.container.offsetHeight - bubbleGlass.offsetHeight - bubbleEl.offsetHeight;
 
             let XTarget = x;
-            let YTarget = -bubbles[i].offsetHeight;
+            let YTarget = -bubbleEl.offsetHeight;
             let XProgress = x;
             let YProgress = y;
 
-            let bubbleEl = bubbles[i];
-
             this.container.addEventListener('mousemove', e => {
-                x = e.clientX + bubbleGlass.offsetWidth / 2 - bubbleEl.offsetHeight / 2;
-                y = e.clientY - bubbleEl.offsetHeight / 2;
+                x = e.clientX + bubbleGlass.offsetWidth / 2 - bubbleEl.offsetWidth / 2;
+                y = e.clientY - bubbleEl.offsetHeight;
 
                 if (e.clientX > this.container.offsetWidth - bubbleGlass.offsetWidth) {
-                    x = this.container.offsetWidth - bubbleGlass.offsetWidth / 2 - bubbleEl.offsetHeight / 2;
+                    x = this.container.offsetWidth - bubbleGlass.offsetWidth / 2 - bubbleEl.offsetWidth / 2;
                 }
     
                 if (e.clientY > this.container.offsetHeight - bubbleGlass.offsetHeight) {
-                    y = this.container.offsetHeight - bubbleGlass.offsetHeight - bubbleEl.offsetHeight / 2;
+                    y = this.container.offsetHeight - bubbleGlass.offsetHeight - bubbleEl.offsetHeight;
                 }
     
                 if (e.clientY < 200) {
-                    y = 200  - bubbleEl.offsetHeight / 2;
+                    y = 200 - bubbleEl.offsetHeight;
                 }
             });
 
             // Alternate false/true random for bubbles Left/Right orientation
-            let XOrt = Math.random() >= 0.5;
+            // let XOrt = Math.random() >= 0.5;
 
-            let XPt = Math.random() * 99;
-            let YPt = Math.random() * 12;
+            let XPt = Math.random() * 9 + 1;
+            let YPt = Math.random() * 9 + 1;
             let XPtNew = XPt;
             let YPtNew = YPt;
 
             function animate() {
-                XPt = Math.random() * 99;
-                XPtNew += 0.1;
-                // YPtNew += 0.0001;
+                XPtNew += 0.038;
 
-                if (YProgress < YTarget) {
-                    XPtNew = XPt;
-                    XProgress = x;
-                    YProgress = y;
-                } else {
-                    if (XOrt === true) {
-                        XProgress += Math.sin(0.025) * XPtNew;
-                    } else {
-                        XProgress -= Math.sin(0.025) * XPtNew;
-                    }
+                if (YProgress > YTarget) {
+                    XProgress = XProgress + Math.sin(XPtNew) * XPt;
                     YProgress -= Math.sin(1) * YPtNew;
+                } else {
+                    XPtNew = XPt;
+                    XProgress = x + Math.sin(XPtNew) * XPt;
+                    YProgress = y;
                 }
 
                 bubbleEl.style.transform = `translate3d(${XProgress}px, ${YProgress}px, 0)`;

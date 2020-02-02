@@ -403,8 +403,24 @@ template {
     height: 100%;
     top: 0;
     left: 0;
-    cursor: none;
+    cursor: none !important;
     overflow: hidden;
+}
+.oto-bubbles-background {
+    min-width: 100%;
+    min-height: 100%;
+    width: calc(100% + 200px);
+    height: calc(100% + 200px);
+    transform: translate3d(0, 0, 0);
+    background-image: url(../img/bubble-generator-bg.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: bottom;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 4;
 }
 .oto-bubbles-wrapper {
     position: absolute;
@@ -412,12 +428,16 @@ template {
     height: 100%;
     top: 0;
     left: 0;
+    z-index: 6;
 }
 .bubble {
     width: 40px;
     height: 40px;
     display: inline-block;
     border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.65);
+    /* -webkit-backdrop-filter: saturate(180%) blur(10px);
+    backdrop-filter: saturate(180%) blur(10px); */
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
@@ -426,7 +446,7 @@ template {
 
 .oto-bubbles-glass {
     width: 172px;
-    height: 240px;
+    height: 292px;
     display: inline-block;
     background-repeat: no-repeat;
     background-position: center;
@@ -440,6 +460,7 @@ template {
 
 .oto-bubbles-generator .oto-bubbles-glass {
     position: absolute;
+    z-index: 9;
 }
 
 .oto-bubbles-audio {
@@ -463,13 +484,14 @@ template {
     border-radius: 30px;
     width: 90%;
     max-width: 380px;
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
-    transition: 0.5s ease-in-out;
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+    backdrop-filter: saturate(180%) blur(10px);
+    transition: 0.45s ease-in-out;
     text-align: center;
     opacity: 0;
     visibility: hidden;
-    transform: translateX(-50%) scale(0.5);
+    transform: translateX(-50%) scale(0.85);
+    z-index: 99;
 }
 .oto-bubbles-audioPopMessage p {
     margin-top: 0;
@@ -494,10 +516,11 @@ template {
     white-space: nowrap;
     -webkit-backdrop-filter: saturate(180%) blur(20px);
     backdrop-filter: saturate(180%) blur(20px);
-    transition: 0.5s ease-in-out;
+    transition: 0.45s ease-in-out;
     opacity: 0;
     visibility: hidden;
-    transform: scale(0.5);
+    transform: scale(0.85);
+    z-index: 99;
 }
 .oto-bubbles-audioStatus i {
     margin-top: 0;
