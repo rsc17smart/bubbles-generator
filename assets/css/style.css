@@ -409,8 +409,8 @@ template {
 .oto-bubbles-background {
     min-width: 100%;
     min-height: 100%;
-    width: calc(100% + 200px);
-    height: calc(100% + 200px);
+    width: 120%;
+    height: 120%;
     transform: translate3d(0, 0, 0);
     background-image: url(../img/bubble-generator-bg.jpg);
     background-repeat: no-repeat;
@@ -419,7 +419,7 @@ template {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-45%, -45%);
     z-index: 4;
 }
 .oto-bubbles-wrapper {
