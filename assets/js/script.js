@@ -4,9 +4,35 @@ OTO.BubbleGenerator = class {
     constructor(container, options) {
         this.container = container;
         this.options = options;
+        this.pointerPos = {
+            clientX: 0,
+            clientY: 0,
+            isMoved: false
+        };
+        this.bubblesGlassObj = {
+            width: 172,
+            height: 292,
+            XPos: 0,
+            YPos: 0,
+        }
+        this.bubbleElObj = {
+            width: 40,
+            height: 40
+        }
     }
 
     constructHtml() {
+        let bubblesLength = 0;
+
+        if (typeof this.options.bubbles === 'number') {
+            bubblesLength = this.options.bubbles;
+        } else if (typeof this.options.bubbles === 'string') {
+            bubblesLength = parseInt(this.options.bubbles, 10);
+            console.warn('Please provide a number value.');
+        } else {
+            bubblesLength = 10;
+        }
+
         this.container.classList.add('oto-bubbles-generator');
 
         // Add parallax background
@@ -81,122 +107,90 @@ OTO.BubbleGenerator = class {
         // Add the Glass
         const bubblesGlass = document.createElement('div');
         bubblesGlass.classList.add('oto-bubbles-glass');
+        bubblesGlass.style.width = `${this.bubblesGlassObj.width}px`;
+        bubblesGlass.style.height = `${this.bubblesGlassObj.height}px`;
         this.container.appendChild(bubblesGlass);
+
+        // Create bubbles objects
+        this.bubblesList = [];
+        for (let i = 0; i < bubblesLength; i++) {
+            this.bubblesList.push(new OTO.Bubble(this.container.offsetWidth / 2, this.container.offsetHeight - bubblesGlass.offsetHeight));
+        }
     }
 
-    initializeBubbles() {
+    // Init Background Image Parallax
+    initBackground() {
         const bubblesBackground = this.container.querySelector('.oto-bubbles-background');
         const bubblesWrapper = this.container.querySelector('.oto-bubbles-wrapper');
-        const bubbleGlass = this.container.querySelector('.oto-bubbles-glass');
-        let bubblesLength = 0;
 
-        if (typeof this.options.bubbles === 'number') {
-            bubblesLength = this.options.bubbles;
-        } else if (typeof this.options.bubbles === 'string') {
-            bubblesLength = parseInt(this.options.bubbles, 10);
-            console.warn('Please provide a number value.');
-        } else {
-            bubblesLength = 10;
-        }
+        let XBgPos = 45;
+        let YBgPos = 45;
 
-        let x = this.container.offsetWidth / 2 - bubbleGlass.offsetWidth / 2;
-        let y = this.container.offsetHeight - bubbleGlass.offsetHeight;
-
-        let XBgPos = 45 + x / 200;
-        let YBgPos = 45 + y / 200;
-
-        bubbleGlass.style.transform = `translate3d(${x}px, ${y}px, 0)`;
         bubblesBackground.style.transform = `translate(${-XBgPos}%, ${-YBgPos}%)`;
 
-        // Add bubbles
-        for (let i = 0; i < bubblesLength; i++) {
+        this.container.addEventListener('mousemove', e => {
+            let XBgPos = 45 + this.pointerPos.clientX / 200;
+            let YBgPos = 45 + this.pointerPos.clientY / 200;
+            bubblesBackground.style.transform = `translate(${-XBgPos}%, ${-YBgPos}%)`;
+        });
+    }
+
+    // Init Bubbles Glass
+    initBubblesGlass() {
+        const _this = this;
+        const bubblesBackground = this.container.querySelector('.oto-bubbles-background');
+        const bubblesWrapper = this.container.querySelector('.oto-bubbles-wrapper');
+        const bubblesGlass = this.container.querySelector('.oto-bubbles-glass');
+
+        _this.setPointerPositionBubblesGlass(_this.bubblesGlassObj);
+
+        bubblesGlass.style.transform = `translate3d(${_this.bubblesGlassObj.XPos}px, ${_this.bubblesGlassObj.YPos}px, 0)`;
+
+        this.container.addEventListener('mousemove', e => {
+            _this.setPointerPositionBubblesGlass(_this.bubblesGlassObj);
+            bubblesGlass.style.transform = `translate3d(${_this.bubblesGlassObj.XPos}px, ${_this.bubblesGlassObj.YPos}px, 0)`;
+        });
+    }
+
+    // Init Bubbles
+    initBubbles() {
+        const _this = this;
+        const bubblesBackground = this.container.querySelector('.oto-bubbles-background');
+        const bubblesWrapper = this.container.querySelector('.oto-bubbles-wrapper');
+        const bubblesGlass = this.container.querySelector('.oto-bubbles-glass');
+
+        for (let i = 0; i < this.bubblesList.length; i++) {
+            const bubbleListEl = this.bubblesList[i];
             const bubbleEl = document.createElement('span');
             bubbleEl.classList.add('bubble');
-            bubblesWrapper.appendChild(bubbleEl);
+            bubbleEl.style.width = `${this.bubbleElObj.width}px`;
+            bubbleEl.style.height = `${this.bubbleElObj.height}px`;
 
-            let bubbleGenerated = 0;
+            let XPosC = Math.random() * 3 + 1;
+            let XPosT = Math.random() * 4 + 1;
 
-            let XBPos = this.container.offsetWidth / 2 - bubbleEl.offsetWidth / 2;
-            let YBPos = this.container.offsetHeight - bubbleGlass.offsetHeight - bubbleEl.offsetHeight;
-            let XGPos = this.container.offsetWidth / 2 - bubbleGlass.offsetWidth / 2;
-            let YGPos = this.container.offsetHeight - bubbleGlass.offsetHeight;
-
-            // let XTarget = x;
-            let YTarget = -bubbleEl.offsetHeight;
-            let XProgress = XBPos;
-            let YProgress = YBPos;
-
-            let XPt = Math.random() * 9 + 1;
-            let YPt = Math.random() * 9 + 1;
-            let XPtNew = XPt;
-            let YPtNew = YPt;
-
-            bubbleEl.style.transform = `translate3d(${XProgress}px, ${YProgress}px, 0)`;
-            bubbleEl.style.opacity = '0';
-
-            this.container.addEventListener('mousemove', e => {
-                x = e.clientX;
-                y = e.clientY;
-
-                XBPos = x - bubbleEl.offsetWidth / 2;
-                YBPos = y - bubbleEl.offsetHeight;
-
-                XGPos = x - bubbleGlass.offsetWidth / 2;
-                YGPos = y;
-
-                if (x < bubbleGlass.offsetWidth / 2) {
-                    XBPos = bubbleGlass.offsetWidth / 2 - bubbleEl.offsetWidth / 2;
-                    XGPos = 0;
-                }
-
-                if (x > this.container.offsetWidth - bubbleGlass.offsetWidth / 2) {
-                    XBPos = this.container.offsetWidth - bubbleGlass.offsetWidth / 2 - bubbleEl.offsetWidth / 2;
-                    XGPos = this.container.offsetWidth - bubbleGlass.offsetWidth;
-                }
-    
-                if (y > this.container.offsetHeight - bubbleGlass.offsetHeight) {
-                    YBPos = this.container.offsetHeight - bubbleGlass.offsetHeight - bubbleEl.offsetHeight;
-                    YGPos = this.container.offsetHeight - bubbleGlass.offsetHeight;
-                }
-    
-                if (y < 200) {
-                    YBPos = 200 - bubbleEl.offsetHeight;
-                    YGPos = 200;
-                }
-
-                XBgPos = 45 + x / 200;
-                YBgPos = 45 + y / 200;
-
-                bubbleGlass.style.transform = `translate3d(${XGPos}px, ${YGPos}px, 0)`;
-                bubblesBackground.style.transform = `translate(${-XBgPos}%, ${-YBgPos}%)`;
-
-                if (bubbleGenerated === 0) {
-                    bubbleEl.style.transform = `translate3d(${XBPos}px, ${YBPos}px, 0)`;
-                }
-            });
+            let YPosC = Math.random() * 1 + 1;
+            let YPosT = Math.random() * 4 + 1;
 
             setTimeout(() => {
+                bubblesWrapper.appendChild(bubbleEl);
 
-                bubbleEl.style.opacity = '1';
+                bubbleListEl.XPos -= bubbleEl.offsetWidth / 2;
+                bubbleListEl.YPos -= bubbleEl.offsetHeight;
 
-                if (bubbleGenerated === 0) {
-                    XProgress = XBPos;
-                    YProgress = YBPos;
-                }
+                _this.setPointerPositionBubble(bubbleListEl);
 
+                bubbleEl.style.transform = `translate3d(${bubbleListEl.XPos}px, ${bubbleListEl.YPos}px, 0)`;
+        
                 function animate() {
-                    XPtNew += 0.038;
+                    XPosC += 0.038;
 
-                    if (YProgress > YTarget) {
-                        XProgress = XProgress + Math.sin(XPtNew) * XPt;
-                        YProgress -= Math.sin(1) * YPtNew;
-                    } else {
-                        XPtNew = XPt;
-                        XProgress = XBPos + Math.sin(XPtNew) * XPt;
-                        YProgress = YBPos;
-                    }
+                    _this.resetPointerPositionBubble(bubbleListEl);
 
-                    bubbleEl.style.transform = `translate3d(${XProgress}px, ${YProgress}px, 0)`;
+                    bubbleListEl.XPos += Math.sin(XPosC) * XPosT;
+                    bubbleListEl.YPos -= Math.sin(YPosC) * YPosT;
+
+                    bubbleEl.style.transform = `translate3d(${bubbleListEl.XPos}px, ${bubbleListEl.YPos}px, 0)`;
 
                     requestAnimationFrame(animate);
 
@@ -204,14 +198,114 @@ OTO.BubbleGenerator = class {
 
                 requestAnimationFrame(animate);
 
-                bubbleGenerated = 1;
-
-            }, 100 * i);
+            }, 250 * i);
         }
     }
 
+    // Set each bubble position related to mouse
+    setPointerPositionBubble(bubbleObj) {
+        if (this.pointerPos.isMoved === true) {
+            if (this.pointerPos.clientX > this.container.offsetWidth - this.bubblesGlassObj.width / 2) {
+                bubbleObj.XPos = this.container.offsetWidth - this.bubblesGlassObj.width / 2 - this.bubbleElObj.width / 2;
+            } else if (this.pointerPos.clientX < this.bubblesGlassObj.width / 2) {
+                bubbleObj.XPos = this.bubblesGlassObj.width / 2 - this.bubbleElObj.width / 2;
+            } else {
+                bubbleObj.XPos = this.pointerPos.clientX - this.bubbleElObj.width / 2;
+            }
+
+            if (this.pointerPos.clientY < 200) {
+                bubbleObj.YPos = 200 - this.bubbleElObj.height;
+            } else if (this.pointerPos.clientY > this.container.offsetHeight - this.bubblesGlassObj.height) {
+                bubbleObj.YPos = this.container.offsetHeight - this.bubblesGlassObj.height - this.bubbleElObj.height;
+            } else {
+                bubbleObj.YPos = this.pointerPos.clientY - this.bubbleElObj.height;
+            }
+        }
+    }
+
+    // Reset each bubble position related to mouse and top position
+    resetPointerPositionBubble(bubbleObj) {
+        if (bubbleObj.YPos < -this.bubbleElObj.height) {
+            if (this.pointerPos.isMoved === true) {
+                if (this.pointerPos.clientX > this.container.offsetWidth - this.bubblesGlassObj.width / 2) {
+                    bubbleObj.XPos = this.container.offsetWidth - this.bubblesGlassObj.width / 2 - this.bubbleElObj.width / 2;
+                } else if (this.pointerPos.clientX < this.bubblesGlassObj.width / 2) {
+                    bubbleObj.XPos = this.bubblesGlassObj.width / 2 - this.bubbleElObj.width / 2;
+                } else {
+                    bubbleObj.XPos = this.pointerPos.clientX - this.bubbleElObj.width / 2;
+                }
+    
+                if (this.pointerPos.clientY < 200) {
+                    bubbleObj.YPos = 200 - this.bubbleElObj.height;
+                } else if (this.pointerPos.clientY > this.container.offsetHeight - this.bubblesGlassObj.height) {
+                    bubbleObj.YPos = this.container.offsetHeight - this.bubblesGlassObj.height - this.bubbleElObj.height;
+                } else {
+                    bubbleObj.YPos = this.pointerPos.clientY - this.bubbleElObj.height;
+                }
+            } else {
+                bubbleObj.XPos = this.container.offsetWidth / 2 - this.bubbleElObj.width / 2;
+                bubbleObj.YPos = this.container.offsetHeight - this.bubblesGlassObj.height - this.bubbleElObj.height;
+            }
+        }
+    }
+
+    // Set bubbles glass position related to mouse
+    setPointerPositionBubblesGlass(bubblesGlassObj) {
+        bubblesGlassObj.XPos = this.container.offsetWidth / 2 - this.bubblesGlassObj.width / 2;
+        bubblesGlassObj.YPos = this.container.offsetHeight - this.bubblesGlassObj.height;
+
+        if (this.pointerPos.isMoved === true) {
+            if (this.pointerPos.clientX > this.container.offsetWidth - this.bubblesGlassObj.width / 2) {
+                bubblesGlassObj.XPos = this.container.offsetWidth - this.bubblesGlassObj.width;
+            } else if (this.pointerPos.clientX < this.bubblesGlassObj.width / 2) {
+                bubblesGlassObj.XPos = 0;
+            } else {
+                bubblesGlassObj.XPos = this.pointerPos.clientX - this.bubblesGlassObj.width / 2;
+            }
+
+            if (this.pointerPos.clientY < 200) {
+                bubblesGlassObj.YPos = 200;
+            } else if (this.pointerPos.clientY > this.container.offsetHeight - this.bubblesGlassObj.height) {
+                bubblesGlassObj.YPos = this.container.offsetHeight - this.bubblesGlassObj.height;
+            } else {
+                bubblesGlassObj.YPos = this.pointerPos.clientY;
+            }
+        }
+    }
+
+    getPointerPos() {
+        this.container.addEventListener('mousemove', e => {
+            this.pointerPos.clientX = e.clientX;
+            this.pointerPos.clientY = e.clientY;
+            this.pointerPos.isMoved = true;
+        });
+    }
+
+    // Generate
     generate() {
         this.constructHtml();
-        this.initializeBubbles();
+        this.getPointerPos();
+        this.initBackground();
+        this.initBubblesGlass();
+        this.initBubbles();
     };
+}
+
+OTO.Bubble = class {
+    constructor(x, y) {
+        this.XPos = x;
+        this.YPos = y;
+    }
+
+    set newXPosition(x) {
+        this.XPos = x;
+    }
+
+    set newYPosition(y) {
+        this.YPos = y;
+    }
+
+    initBubble() {
+        return this;
+    }
 }
