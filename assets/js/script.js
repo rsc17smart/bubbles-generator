@@ -81,7 +81,7 @@ OTO.BubbleGenerator = class {
             }
 
             document.addEventListener('keypress', function (e) {
-                if (e.keyCode === 109) {
+                if (e.key === 'm') {
                     bubblesAudio.muted = !bubblesAudio.muted;
 
                     if (bubblesAudio.muted === true) {
